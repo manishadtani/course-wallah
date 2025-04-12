@@ -1,16 +1,10 @@
-// backend/src/controllers/auth.controller.js
-// IMPORTANT: Import using your lowercase model names
 import User from '../models/user.model.js'; // <-- Using 'user.model.js'
 import generateToken from '../utils/generateToken.js'; // We still need this
 
-// We will create these helpers in the next step (B7)
 import asyncHandler from '../middleware/asyncHandler.js';
 import createErrorResponse from '../utils/createErrorResponse.js';
-// --- Controller Functions ---
 
-// @desc    Register a new user (Student)
-// @route   POST /api/v1/auth/register
-// @access  Public
+
 export const registerUser = asyncHandler(async (req, res, next) => {
     const { name, email, password } = req.body;
 

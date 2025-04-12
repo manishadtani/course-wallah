@@ -16,4 +16,38 @@ app.use(cors({
     
 app.use("/api/v1/auth", userRoutes)
 
+
+
+
+
+
+const errorHandler = (err, req, res, next) => {
+    // Log the error for the developer (server console pe dikhega)
+    // In production, you might want more sophisticated logging (e.g., to a file)
+    console.error('ERROR STACK: ', err.stack); // Log the stack trace for debugging
+    console.error('ERROR MESSAGE: ', err.message); // Log just the message
+
+    // Use the statusCode from our custom error if it exists, otherwise default to 500 (Internal Server Error)
+    const statusCode = err.statusCode || 500;
+
+    // Use the status from our custom error ('fail' or 'error') if it exists, otherwise determine based on statusCode
+    const status = err.status || (statusCode >= 500 ? 'error' : 'fail');
+
+    // Send a structured JSON error response to the client (frontend)
+    res.status(statusCode).json({
+        success: false, // Indicate the request failed
+        status: status, // 'fail' for client errors (4xx), 'error' for server errors (5xx)
+        message: err.message || 'Something went wrong on the server!', // Send the error message
+        // Optional: In development mode, you might want to send the stack trace too
+        // stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+};
+
+// Register the error handler middleware with Express
+app.use(errorHandler);
+
+
+
+
+
 export default app
