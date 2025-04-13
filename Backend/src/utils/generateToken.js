@@ -14,6 +14,7 @@ const generateToken = (userId, role) => {
 
     // JWT_SECRET .env file se aayega (via config.js)
     // 'expiresIn' batata hai token kitne time tak valid rahega.
+    console.log(config.JWT_SECRET)
     return jwt.sign(payload, config.JWT_SECRET, {
         expiresIn: '30d' // Example: 30 days validity
     });

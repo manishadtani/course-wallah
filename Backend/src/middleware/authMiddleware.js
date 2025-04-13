@@ -22,6 +22,7 @@ export const protect = asyncHandler(async (req, res, next) => {
 
             // 3. Verify the token using the secret key
             // jwt.verify throws an error if token is invalid or expired
+            console.log(config.JWT_SECRET)
             const decoded = jwt.verify(token, config.JWT_SECRET);
 
             // 4. Token is valid! Find the user in DB based on ID from token payload
