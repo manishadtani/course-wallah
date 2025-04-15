@@ -108,6 +108,7 @@ const Login = () => {
           <input
             type="password"
             name="password"
+            autoComplete="current password"
             placeholder="Password"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={formData.password}

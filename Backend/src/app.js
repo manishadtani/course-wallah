@@ -1,6 +1,7 @@
 import express from 'express'
 const app = express()
 import userRoutes from './routers/auth.route.js'
+import adminRoutes from './routers/admin.route.js';
 import cors from 'cors'
 
 
@@ -15,6 +16,7 @@ app.use(cors({
 
     
 app.use("/api/v1/auth", userRoutes)
+app.use('/api/admin', adminRoutes);
 
 
 

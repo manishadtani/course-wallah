@@ -7,57 +7,120 @@ import User from '../models/user.model.js'; // To fetch user details from DB
 import config from '../config/config.js'; // To get JWT_SECRET
 
 // Middleware 1: Protect Routes (Checks if user is logged in)
+
+
+
+
+// export const protect = asyncHandler(async (req, res, next) => {
+//     let token;
+
+//     // 1. Check for token in Authorization header
+//     // Format is usually "Bearer <token>"
+//     if (
+//         req.headers.authorization &&
+//         req.headers.authorization.startsWith('Bearer')
+//     ) {
+//         try {
+//             // 2. Extract token from header ("Bearer " ko hata kar)
+//             token = req.headers.authorization.split(' ')[1];
+
+//             // 3. Verify the token using the secret key
+//             // jwt.verify throws an error if token is invalid or expired
+//             console.log(config.JWT_SECRET)
+//             const decoded = jwt.verify(token, config.JWT_SECRET);
+
+//             // 4. Token is valid! Find the user in DB based on ID from token payload
+//             // We stored { id: userId, role: userRole } in the token payload (see generateToken.js)
+//             // `.select('-password')` ensures we don't fetch the hashed password
+//             req.user = await User.findById(decoded.id).select('-password');
+
+//             // 5. Check if user still exists in DB (maybe deleted after token was issued?)
+//             if (!req.user) {
+//                 return next(createErrorResponse('User belonging to this token no longer exists', 401));
+//             }
+
+//             // 6. User is valid and found! Attach user object to the request (`req.user`)
+//             // Now subsequent middleware or route handlers can access logged-in user's info.
+//             next(); // Proceed to the next middleware or route handler
+
+//         } catch (error) {
+//             // Handle JWT verification errors specifically
+//             console.error('JWT Error:', error.name, error.message); // Log the error for debugging
+//             if (error.name === 'JsonWebTokenError') {
+//                 return next(createErrorResponse('Not authorized, token failed (invalid signature)', 401));
+//             }
+//             if (error.name === 'TokenExpiredError') {
+//                 return next(createErrorResponse('Not authorized, token expired', 401));
+//             }
+//             // Generic fallback for other errors during verification
+//             return next(createErrorResponse('Not authorized, token issue', 401));
+//         }
+//     }
+
+//     // If no token found in the header at all
+//     if (!token) {
+//         return next(createErrorResponse('Not authorized, no token provided', 401));
+//     }
+// });
+
+
+
+
+
 export const protect = asyncHandler(async (req, res, next) => {
     let token;
 
-    // 1. Check for token in Authorization header
-    // Format is usually "Bearer <token>"
+    console.log('Incoming Headers:', req.headers); // 👉 Add this
+
     if (
         req.headers.authorization &&
         req.headers.authorization.startsWith('Bearer')
     ) {
         try {
-            // 2. Extract token from header ("Bearer " ko hata kar)
             token = req.headers.authorization.split(' ')[1];
+            console.log('Token found:', token); // 👉 Add this
 
-            // 3. Verify the token using the secret key
-            // jwt.verify throws an error if token is invalid or expired
-            console.log(config.JWT_SECRET)
             const decoded = jwt.verify(token, config.JWT_SECRET);
-
-            // 4. Token is valid! Find the user in DB based on ID from token payload
-            // We stored { id: userId, role: userRole } in the token payload (see generateToken.js)
-            // `.select('-password')` ensures we don't fetch the hashed password
             req.user = await User.findById(decoded.id).select('-password');
 
-            // 5. Check if user still exists in DB (maybe deleted after token was issued?)
             if (!req.user) {
                 return next(createErrorResponse('User belonging to this token no longer exists', 401));
             }
 
-            // 6. User is valid and found! Attach user object to the request (`req.user`)
-            // Now subsequent middleware or route handlers can access logged-in user's info.
-            next(); // Proceed to the next middleware or route handler
+            next();
 
         } catch (error) {
-            // Handle JWT verification errors specifically
-            console.error('JWT Error:', error.name, error.message); // Log the error for debugging
+            console.error('JWT Error:', error.name, error.message);
             if (error.name === 'JsonWebTokenError') {
                 return next(createErrorResponse('Not authorized, token failed (invalid signature)', 401));
             }
             if (error.name === 'TokenExpiredError') {
                 return next(createErrorResponse('Not authorized, token expired', 401));
             }
-            // Generic fallback for other errors during verification
             return next(createErrorResponse('Not authorized, token issue', 401));
         }
     }
 
-    // If no token found in the header at all
     if (!token) {
+        console.log('No token found'); // 👉 Add this
         return next(createErrorResponse('Not authorized, no token provided', 401));
     }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // Middleware 2: Authorize Roles (Checks if logged-in user has a specific role)
