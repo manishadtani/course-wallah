@@ -14,8 +14,16 @@ const _config = {
     CORS_ORIGIN: process.env.CORS_ORIGIN // Include this if it's in your .env
 };
 
+
+
+
 // Freeze the object
 const config = Object.freeze(_config);
+
+// ... inside config.js, before export default config;
+console.log("--- CONFIG.JS (DB Check) ---");
+console.log("Value of config.MONGO_URL:", config.MONGO_URL); // Check the final exported value
+console.log("--- /CONFIG.JS (DB Check) ---");
 
 // Export the frozen config object
 export default config;

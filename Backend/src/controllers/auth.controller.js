@@ -129,3 +129,55 @@ export const registerInstructor = asyncHandler(async (req, res, next) => {
         message: 'Instructor registration successful! Your account is pending approval from the admin.'
     });
 });
+
+
+
+
+// @desc    Login Instructor
+// @route   POST /api/v1/auth/login-instructor
+// @access  Public
+export const loginInstructor = asyncHandler(async (req, res, next) => {
+    const { email, password } = req.body;
+
+    // Basic validation
+    if (!email || !password) {
+        return next(createErrorResponse('Please provide email and password', 400));
+    }
+
+    // Find instructor
+    const instructor = await User.findOne({
+        email: email.toLowerCase(),
+        role: 'Instructor'
+    }).select('+password');
+
+    if (!instructor) {
+        return next(createErrorResponse('No instructor found with this email', 404));
+    }
+
+    // Check if approved
+    if (!instructor.isApproved) {
+        return next(createErrorResponse('Instructor account is pending approval from admin', 403));
+    }
+
+    // Compare password
+    const isMatch = await instructor.comparePassword(password);
+    if (!isMatch) {
+        return next(createErrorResponse('Invalid password', 401));
+    }
+
+    // Generate token
+    const token = generateToken(instructor._id, instructor.role);
+
+    // Send response
+    res.status(200).json({
+        success: true,
+        message: "Login successful",
+        _id: instructor._id,
+        name: instructor.name,
+        email: instructor.email,
+        role: instructor.role,
+        isApproved: instructor.isApproved,
+        brandSlug: instructor.brandSlug,
+        token
+    });
+});

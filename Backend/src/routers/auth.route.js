@@ -2,7 +2,8 @@ import express from 'express';
 import {
     registerUser,
     loginUser,
-    registerInstructor
+    registerInstructor,
+    loginInstructor
 } from '../controllers/auth.controller.js'; 
 
 const router = express.Router();
@@ -15,6 +16,9 @@ router.post('/login', loginUser);
 
 // POST request to /api/v1/auth/register-instructor
 router.post('/register-instructor', registerInstructor);
+
+
+router.post('/login-instructor', loginInstructor);
 
 // Add more auth routes later if needed (e.g., forgot password, verify email)
 
