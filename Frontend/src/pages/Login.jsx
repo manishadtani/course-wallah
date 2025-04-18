@@ -1,16 +1,28 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../features/auth/authSlice"; // Thunk
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const { loading, error, isAuthenticated } = useSelector((state) => state.auth);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "User", // default role
+    role: "User",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
-  const [success, setSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setSuccessMessage("Login successful");
+      setTimeout(() => navigate("/"), 1500); // Later redirect to dashboard
+    }
+  }, [isAuthenticated, navigate]);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -20,33 +32,14 @@ const Login = () => {
     setFormData((prev) => ({ ...prev, role }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage("");
-    setSuccess(false);
+    const endpoint =
+      formData.role === "Instructor"
+        ? "http://localhost:3000/api/v1/auth/login-instructor"
+        : "http://localhost:3000/api/v1/auth/login";
 
-    try {
-      const endpoint =
-        formData.role === "Instructor"
-          ? "http://localhost:3000/api/v1/auth/login-instructor"
-          : "http://localhost:3000/api/v1/auth/login";
-
-      const payload = {
-        email: formData.email,
-        password: formData.password,
-      };
-
-      const res = await axios.post(endpoint, payload);
-      setMessage(res.data.message || "Login successful");
-      setSuccess(true);
-      // Store token, navigate to dashboard, etc. here
-    } catch (error) {
-      setMessage(error.response?.data?.message || "Login failed");
-      setSuccess(false);
-    } finally {
-      setLoading(false);
-    }
+    dispatch(loginUser({ email: formData.email, password: formData.password, endpoint }));
   };
 
   return (
@@ -56,15 +49,15 @@ const Login = () => {
           Welcome Back
         </h2>
 
-        {message && (
+        {(successMessage || error) && (
           <div
             className={`mb-4 px-5 py-3 rounded-lg text-sm font-medium transition-all duration-300 ${
-              success
+              successMessage
                 ? "bg-green-100 text-green-700 border border-green-400"
                 : "bg-red-100 text-red-700 border border-red-400"
             }`}
           >
-            {message}
+            {successMessage || error}
           </div>
         )}
 
@@ -73,9 +66,7 @@ const Login = () => {
           <button
             type="button"
             className={`px-6 py-2 rounded-full font-medium transition-all ${
-              formData.role === "User"
-                ? "bg-purple-600 text-white shadow"
-                : "text-gray-600"
+              formData.role === "User" ? "bg-purple-600 text-white shadow" : "text-gray-600"
             }`}
             onClick={() => handleRoleChange("User")}
           >
@@ -84,9 +75,7 @@ const Login = () => {
           <button
             type="button"
             className={`px-6 py-2 rounded-full font-medium transition-all ${
-              formData.role === "Instructor"
-                ? "bg-purple-600 text-white shadow"
-                : "text-gray-600"
+              formData.role === "Instructor" ? "bg-purple-600 text-white shadow" : "text-gray-600"
             }`}
             onClick={() => handleRoleChange("Instructor")}
           >
@@ -108,7 +97,7 @@ const Login = () => {
           <input
             type="password"
             name="password"
-            autoComplete="current password"
+            autoComplete="current-password"
             placeholder="Password"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={formData.password}

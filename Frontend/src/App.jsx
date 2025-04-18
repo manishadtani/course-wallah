@@ -4,6 +4,8 @@ import Login from "./pages/Login";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Registration from "./pages/registration";
+import InstructorProfile from './pages/InstructorProfile';
+
 
 function App() {
   return (
@@ -12,6 +14,8 @@ function App() {
         {/* <Route path="/" element={<Home />} /> */}
         <Route path="/register" element={<Registration />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/:username" element={<InstructorProfile />} />
+
       </Routes>
       <ToastContainer />
     </>
